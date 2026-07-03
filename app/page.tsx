@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { getUpcomingEvents } from '@/lib/calendar';
 import EventCard from '@/components/EventCard';
 import HeroCarousel from '@/components/HeroCarousel';
-import PhotoGallery from '@/components/PhotoGallery';
+import QuickLinks from '@/components/QuickLinks';
+import ProgramSnapshot from '@/components/ProgramSnapshot';
 
 export const revalidate = 300;
 
@@ -15,6 +16,8 @@ export default async function Home() {
   return (
     <main>
       <HeroCarousel />
+      <QuickLinks />
+      <ProgramSnapshot />
 
       <section className="bg-white py-20 px-4">
         <div className="max-w-3xl mx-auto">
@@ -23,7 +26,7 @@ export default async function Home() {
           </p>
           <div className="flex items-end justify-between mb-10">
             <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tight">
-              Upcoming Games
+              Upcoming Events
             </h2>
             {calendarConfigured && events.length > 0 && (
               <Link
@@ -54,8 +57,6 @@ export default async function Home() {
           )}
         </div>
       </section>
-
-      <PhotoGallery />
     </main>
   );
 }

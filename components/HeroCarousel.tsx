@@ -46,21 +46,26 @@ export default function HeroCarousel() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/25 to-black/70" />
 
       <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4">
-        <p className="text-green-400 text-xs font-bold uppercase tracking-[0.4em] mb-5">
-          Woodinville High School
-        </p>
-        <h1 className="text-6xl sm:text-7xl md:text-8xl font-black uppercase tracking-tight leading-none mb-5">
-          WHS Girls<br />Soccer
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-none mb-5">
+          Woodinville High School<br />Girls Soccer
         </h1>
-        <p className="text-white/55 text-sm uppercase tracking-[0.25em] mb-10">
-          Varsity &amp; JV · 2025 Season
+        <p className="text-green-400 text-sm sm:text-base uppercase tracking-[0.25em] mb-10">
+          One Falcon. One Family.
         </p>
-        <Link
-          href="/calendar"
-          className="border-2 border-white/80 text-white text-xs font-bold px-10 py-4 rounded-full uppercase tracking-widest hover:bg-white hover:text-green-900 transition-all duration-300"
-        >
-          View Schedule
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link
+            href="/season-info"
+            className="border-2 border-white/80 text-white text-xs font-bold px-10 py-4 rounded-full uppercase tracking-widest hover:bg-white hover:text-green-900 transition-all duration-300"
+          >
+            2026 Season Information
+          </Link>
+          <Link
+            href="/summer-training"
+            className="bg-green-600 border-2 border-green-600 text-white text-xs font-bold px-10 py-4 rounded-full uppercase tracking-widest hover:bg-green-500 hover:border-green-500 transition-all duration-300"
+          >
+            Summer Training
+          </Link>
+        </div>
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
