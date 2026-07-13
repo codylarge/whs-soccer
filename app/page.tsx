@@ -17,8 +17,7 @@ export default async function Home() {
     <main>
       <HeroCarousel />
       <QuickLinks />
-      <ProgramSnapshot />
-
+      
       <section className="bg-white py-20 px-4">
         <div className="max-w-3xl mx-auto">
           <p className="text-green-600 text-xs font-bold uppercase tracking-[0.4em] mb-3">
@@ -37,7 +36,7 @@ export default async function Home() {
               </Link>
             )}
           </div>
-
+          
           {!calendarConfigured ? (
             <div className="border border-gray-200 rounded-xl p-6 bg-gray-50">
               <p className="font-semibold text-gray-700">Calendar not configured.</p>
@@ -57,6 +56,10 @@ export default async function Home() {
           )}
         </div>
       </section>
+
+      <ProgramSnapshot />
+
+      
     </main>
   );
 }

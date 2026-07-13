@@ -6,22 +6,22 @@ import { useState } from 'react';
 
 const links = [
   { href: '/', label: 'Home' },
-  { href: '/philosophy', label: 'Philosophy' },
-  { href: '/coaches', label: 'Coaches' },
+  //{ href: '/philosophy', label: 'Philosophy' },
+  //{ href: '/coaches', label: 'Coaches' },
   { href: '/varsity', label: 'Varsity' },
   { href: '/jv', label: 'JV' },
   { href: '/c-team', label: 'C-Team' },
   { href: '/summer-training', label: 'Summer Training' },
   { href: '/tryouts', label: 'Tryouts' },
   { href: '/calendar', label: 'Calendar' },
-  { href: '/fundraising', label: 'Fundraising' },
-  { href: '/sponsors', label: 'Sponsors' },
-  { href: '/alumni', label: 'Alumni' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/resources', label: 'Resources' },
+  //{ href: '/fundraising', label: 'Fundraising' },
+  //{ href: '/sponsors', label: 'Sponsors' },
+  //{ href: '/alumni', label: 'Alumni' },
+  //{ href: '/gallery', label: 'Gallery' },
+  //{ href: '/resources', label: 'Resources' },
 ];
 
-const FEATURED_HREFS = ['/', '/varsity', '/jv', '/c-team'];
+const FEATURED_HREFS = ['/', '/calendar'];
 const featuredLinks = links.filter((link) => FEATURED_HREFS.includes(link.href));
 
 export default function Navbar() {

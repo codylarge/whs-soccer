@@ -196,7 +196,13 @@ export default function MonthCalendar({
               {/* Mobile: compact day cell with dot indicators, tap opens the day's agenda */}
               <button
                 type="button"
-                onClick={() => dayEvents.length > 0 && setOpenDay(key)}
+                onClick={() => {
+                  if (dayEvents.length === 1) {
+                    openEventDetail(dayEvents[0]);
+                  } else if (dayEvents.length > 1) {
+                    setOpenDay(key);
+                  }
+                }}
                 disabled={dayEvents.length === 0}
                 className="sm:hidden w-full h-16 p-1 flex flex-col items-center gap-1"
               >
