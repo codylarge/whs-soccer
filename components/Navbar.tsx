@@ -33,12 +33,12 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 py-4 grid grid-cols-[1fr_auto_1fr] items-center">
         <Link
           href="/"
-          className="justify-self-start text-white font-black text-lg uppercase tracking-widest hover:text-green-400 transition-colors"
+          className="col-start-1 justify-self-start text-white font-black text-lg uppercase tracking-widest hover:text-green-400 transition-colors"
         >
           WHS<span className="text-green-400 mx-1.5">·</span>Soccer
         </Link>
 
-        <div className="hidden sm:flex items-center gap-6 justify-self-center">
+        <div className="hidden sm:flex col-start-2 items-center gap-6 justify-self-center">
           {featuredLinks.map((link) => (
             <Link
               key={link.href}
@@ -52,7 +52,7 @@ export default function Navbar() {
           ))}
         </div>
 
-        <div className="justify-self-end">
+        <div className="col-start-3 justify-self-end">
           <button
             className="flex flex-col gap-1.5 p-1"
             onClick={() => setOpen((o) => !o)}

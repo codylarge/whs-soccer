@@ -42,7 +42,7 @@ function EventPill({ event, onClick }: { event: CalendarEvent; onClick: (event: 
         e.stopPropagation();
         onClick(event);
       }}
-      className="h-5 w-full shrink-0 flex items-center bg-green-50 border border-green-100 rounded px-1.5 text-[11px] leading-none text-green-900 overflow-hidden whitespace-nowrap hover:bg-green-100 transition-colors text-left"
+      className="w-full shrink-0 flex items-center gap-1 bg-green-50 border border-green-100 rounded-lg sm:rounded px-3 py-2.5 sm:h-5 sm:px-1.5 sm:py-0 text-sm sm:text-[11px] leading-none text-green-900 overflow-hidden whitespace-nowrap hover:bg-green-100 transition-colors text-left"
       title={event.title}
     >
       {!event.isAllDay && (
@@ -55,9 +55,9 @@ function EventPill({ event, onClick }: { event: CalendarEvent; onClick: (event: 
 
 function EventDetailModal({ event, onClose }: { event: CalendarEvent; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/40" onClick={onClose} aria-hidden />
-      <div className="relative z-10 bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-lg shadow-xl p-5 max-h-[85vh] overflow-y-auto">
+      <div className="relative z-10 bg-white w-full max-w-md rounded-2xl sm:rounded-lg shadow-xl p-5 max-h-[85vh] overflow-y-auto">
         <div className="flex items-start justify-between gap-4 mb-3">
           <h3 className="text-lg font-bold text-gray-900">{event.title}</h3>
           <button
@@ -251,30 +251,32 @@ export default function MonthCalendar({
                     aria-hidden
                   />
                   <div
-                    className={`fixed inset-x-0 bottom-0 z-30 w-full max-h-[70vh] rounded-t-2xl sm:rounded-lg sm:absolute sm:inset-auto sm:top-0 ${
+                    className={`fixed inset-0 z-30 flex items-center justify-center p-4 sm:block sm:inset-auto sm:absolute sm:p-0 sm:top-0 ${
                       anchorRight ? 'sm:right-0' : 'sm:left-0'
-                    } sm:w-60 sm:max-h-72 overflow-y-auto bg-white border border-gray-200 shadow-xl p-2`}
+                    }`}
                   >
-                    <div className="flex items-center justify-between mb-2 px-1">
-                      <span className="text-xs font-bold text-gray-700">
-                        {new Date(year, month - 1, day).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </span>
-                      <button
-                        onClick={() => setOpenDay(null)}
-                        aria-label="Close"
-                        className="text-gray-400 hover:text-gray-600 text-sm leading-none"
-                      >
-                        &#10005;
-                      </button>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      {dayEvents.map((event) => (
-                        <EventPill key={event.id} event={event} onClick={openEventDetail} />
-                      ))}
+                    <div className="w-full max-w-sm sm:w-60 max-h-[75vh] sm:max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-2xl sm:rounded-lg shadow-xl p-4 sm:p-2">
+                      <div className="flex items-center justify-between mb-3 sm:mb-2 px-1">
+                        <span className="text-sm sm:text-xs font-bold text-gray-700">
+                          {new Date(year, month - 1, day).toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </span>
+                        <button
+                          onClick={() => setOpenDay(null)}
+                          aria-label="Close"
+                          className="text-gray-400 hover:text-gray-600 text-lg sm:text-sm leading-none"
+                        >
+                          &#10005;
+                        </button>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:gap-1">
+                        {dayEvents.map((event) => (
+                          <EventPill key={event.id} event={event} onClick={openEventDetail} />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </>
