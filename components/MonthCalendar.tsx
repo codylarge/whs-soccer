@@ -2,10 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import DOMPurify from 'isomorphic-dompurify';
 import type { CalendarEvent } from '@/lib/calendar';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MAX_VISIBLE = 2;
+const MAX_DOTS = 3;
+
+const DESCRIPTION_CLASSES =
+  '[&_ul]:list-none [&_ul]:pl-0 [&_ol]:list-none [&_ol]:pl-0 [&_li]:list-none [&_li]:pl-0 [&_li]:ml-0';
 
 function eventDateKey(event: CalendarEvent): string {
   if (event.isAllDay) {
@@ -29,16 +34,60 @@ function monthParam(year: number, month: number): string {
   return `${year}-${String(month).padStart(2, '0')}`;
 }
 
-function EventPill({ event }: { event: CalendarEvent }) {
+function EventPill({ event, onClick }: { event: CalendarEvent; onClick: (event: CalendarEvent) => void }) {
   return (
-    <div
-      className="h-5 shrink-0 flex items-center bg-green-50 border border-green-100 rounded px-1.5 text-[11px] leading-none text-green-900 overflow-hidden whitespace-nowrap"
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick(event);
+      }}
+      className="h-5 w-full shrink-0 flex items-center bg-green-50 border border-green-100 rounded px-1.5 text-[11px] leading-none text-green-900 overflow-hidden whitespace-nowrap hover:bg-green-100 transition-colors text-left"
       title={event.title}
     >
       {!event.isAllDay && (
         <span className="text-green-700 font-semibold shrink-0">{formatTime(event.start)}&nbsp;</span>
       )}
       <span className="truncate">{event.title}</span>
+    </button>
+  );
+}
+
+function EventDetailModal({ event, onClose }: { event: CalendarEvent; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center">
+      <div className="fixed inset-0 bg-black/40" onClick={onClose} aria-hidden />
+      <div className="relative z-10 bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-lg shadow-xl p-5 max-h-[85vh] overflow-y-auto">
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <h3 className="text-lg font-bold text-gray-900">{event.title}</h3>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="text-gray-400 hover:text-gray-600 text-xl leading-none shrink-0"
+          >
+            &#10005;
+          </button>
+        </div>
+        <p className="text-sm text-gray-500 mb-1">
+          {new Date(event.start).toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </p>
+        {!event.isAllDay && (
+          <p className="text-sm text-gray-500 mb-1">
+            {formatTime(event.start)} &ndash; {formatTime(event.end)}
+          </p>
+        )}
+        {event.location && <p className="text-sm text-gray-500 mb-1">{event.location}</p>}
+        {event.description && (
+          <div
+            className={`text-sm text-gray-600 mt-3 ${DESCRIPTION_CLASSES}`}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(event.description) }}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -53,6 +102,7 @@ export default function MonthCalendar({
   events: CalendarEvent[];
 }) {
   const [openDay, setOpenDay] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
 
   const eventsByDay = new Map<string, CalendarEvent[]>();
   for (const event of events) {
@@ -77,6 +127,11 @@ export default function MonthCalendar({
 
   const prev = month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 };
   const next = month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 };
+
+  const openEventDetail = (event: CalendarEvent) => {
+    setOpenDay(null);
+    setSelectedEvent(event);
+  };
 
   return (
     <div>
@@ -116,26 +171,56 @@ export default function MonthCalendar({
             key={day}
             className="border-r border-b border-gray-200 bg-gray-50 py-2 text-center text-xs font-bold text-gray-500 uppercase tracking-widest"
           >
-            {day}
+            <span className="sm:hidden">{day[0]}</span>
+            <span className="hidden sm:inline">{day}</span>
           </div>
         ))}
 
         {cells.map((day, i) => {
           if (day === null) {
-            return <div key={i} className="h-32 border-r border-b border-gray-200 bg-gray-50" />;
+            return <div key={i} className="h-16 sm:h-32 border-r border-b border-gray-200 bg-gray-50" />;
           }
 
           const key = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
           const dayEvents = eventsByDay.get(key) ?? [];
           const visibleEvents = dayEvents.slice(0, MAX_VISIBLE);
           const hiddenCount = dayEvents.length - MAX_VISIBLE;
+          const visibleDots = dayEvents.slice(0, MAX_DOTS);
+          const hiddenDotCount = dayEvents.length - MAX_DOTS;
           const isToday = isCurrentMonth && today.getDate() === day;
           const isOpen = openDay === key;
           const anchorRight = i % 7 >= 4;
 
           return (
             <div key={i} className="relative border-r border-b border-gray-200">
-              <div className="h-32 p-1.5 overflow-hidden flex flex-col">
+              {/* Mobile: compact day cell with dot indicators, tap opens the day's agenda */}
+              <button
+                type="button"
+                onClick={() => dayEvents.length > 0 && setOpenDay(key)}
+                disabled={dayEvents.length === 0}
+                className="sm:hidden w-full h-16 p-1 flex flex-col items-center gap-1"
+              >
+                <span
+                  className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full shrink-0 ${
+                    isToday ? 'bg-green-700 text-white' : 'text-gray-700'
+                  }`}
+                >
+                  {day}
+                </span>
+                {dayEvents.length > 0 && (
+                  <span className="flex items-center gap-0.5">
+                    {visibleDots.map((event) => (
+                      <span key={event.id} className="w-1.5 h-1.5 rounded-full bg-green-600" />
+                    ))}
+                    {hiddenDotCount > 0 && (
+                      <span className="text-[9px] leading-none text-gray-500">+{hiddenDotCount}</span>
+                    )}
+                  </span>
+                )}
+              </button>
+
+              {/* Desktop/tablet: full grid with event pills */}
+              <div className="hidden sm:flex h-32 p-1.5 overflow-hidden flex-col">
                 <div
                   className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1 shrink-0 ${
                     isToday ? 'bg-green-700 text-white' : 'text-gray-700'
@@ -145,7 +230,7 @@ export default function MonthCalendar({
                 </div>
                 <div className="flex flex-col gap-1">
                   {visibleEvents.map((event) => (
-                    <EventPill key={event.id} event={event} />
+                    <EventPill key={event.id} event={event} onClick={openEventDetail} />
                   ))}
                   {hiddenCount > 0 && (
                     <button
@@ -166,7 +251,9 @@ export default function MonthCalendar({
                     aria-hidden
                   />
                   <div
-                    className={`absolute z-30 top-0 ${anchorRight ? 'right-0' : 'left-0'} w-60 max-h-72 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-xl p-2`}
+                    className={`fixed inset-x-0 bottom-0 z-30 w-full max-h-[70vh] rounded-t-2xl sm:rounded-lg sm:absolute sm:inset-auto sm:top-0 ${
+                      anchorRight ? 'sm:right-0' : 'sm:left-0'
+                    } sm:w-60 sm:max-h-72 overflow-y-auto bg-white border border-gray-200 shadow-xl p-2`}
                   >
                     <div className="flex items-center justify-between mb-2 px-1">
                       <span className="text-xs font-bold text-gray-700">
@@ -186,7 +273,7 @@ export default function MonthCalendar({
                     </div>
                     <div className="flex flex-col gap-1">
                       {dayEvents.map((event) => (
-                        <EventPill key={event.id} event={event} />
+                        <EventPill key={event.id} event={event} onClick={openEventDetail} />
                       ))}
                     </div>
                   </div>
@@ -196,6 +283,10 @@ export default function MonthCalendar({
           );
         })}
       </div>
+
+      {selectedEvent && (
+        <EventDetailModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+      )}
     </div>
   );
 }

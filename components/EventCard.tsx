@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 import type { CalendarEvent } from '@/lib/calendar';
 
 function parseDate(dateStr: string, isAllDay: boolean): Date {
@@ -17,6 +21,16 @@ function formatTime(dateStr: string): string {
 
 export default function EventCard({ event }: { event: CalendarEvent }) {
   const date = parseDate(event.start, event.isAllDay);
+  const [expanded, setExpanded] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = descriptionRef.current;
+    if (el) {
+      setIsTruncated(el.scrollHeight > el.clientHeight);
+    }
+  }, [event.description]);
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -39,7 +53,22 @@ export default function EventCard({ event }: { event: CalendarEvent }) {
             <p className="text-sm text-gray-500 mt-0.5">{event.location}</p>
           )}
           {event.description && (
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{event.description}</p>
+            <div className="mt-1">
+              <div
+                ref={descriptionRef}
+                className={`text-sm text-gray-600 [&_ul]:list-none [&_ul]:pl-0 [&_ol]:list-none [&_ol]:pl-0 [&_li]:list-none [&_li]:pl-0 [&_li]:ml-0 ${expanded ? '' : 'line-clamp-1'}`}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(event.description) }}
+              />
+              {(isTruncated || expanded) && (
+                <button
+                  type="button"
+                  onClick={() => setExpanded((prev) => !prev)}
+                  className="text-sm text-green-700 font-medium hover:underline mt-0.5"
+                >
+                  {expanded ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
